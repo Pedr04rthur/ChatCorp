@@ -1,15 +1,47 @@
-// importando o controlador de mensagens
+const express = require('express'); // aqui estou importando o express
+const { emitWarning } = require('process');
 const messageController = require('./controllers/messageController');
+const app = express(); //criação de uma aplicação express
 
-//testando funções
-console.log("Mensagens iniciais:", messageController.getMessages());
+const PORT = process.env.PORT || 5000; // definindo a porta do servidor
 
-const msg = messageController.addMessage("Ana","Oiee");
-console.log("MENSAGEM ADICIONADA: ",msg);
+app.use(express.json()); 
 
-//Adicionando mais uma mensagem
+// roda básica para testar
+app.get('/', (req, res) => {
+    res.json({message: 'SERVIDOR CHATCORP FUNCIONANDO!'})
+});
 
-messageController.addMessage("Pedro", "Olá, Ana!");
+//rota para obter todas as mensagens
+app.get('/messages', (req, res) => {
+    try {
+        const messages = messageController.getMessages();
+        res.json(messages);
+    } catch (error) {
+        res.status(500).json({error: 'Erro ao obter mensagens'});
+    }
 
-//verificando o array onde está servindo como banco para as mensagens
-console.log("All Messages:", messageController.getMessages());
+});
+
+//rota para enviar uma nova mensagem
+app.post('/mensages', (req,res) =>{
+    try {
+        const {nome, texto} = req.body;
+        
+        if(!nome || !texto){
+            return res.status(400).json({error: 'Nome e texto são obrigatórios'});
+    }
+
+    const newMessage = messageController.addMessage(nome,texto);
+    res.status(201).json(newMessage);
+    } catch (error) {
+        res.status(500).json({error: 'Erro ao adicionar mensagem'});
+    }
+});
+
+
+
+//iniciando o servidor e ficar escutando na porta definida  
+app.listen(PORT, () => {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
+});
