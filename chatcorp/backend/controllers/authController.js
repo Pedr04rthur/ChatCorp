@@ -59,7 +59,7 @@ exports.register = async (req, res) => {
 
 //LOGIN DO USER
 
-exports.login = async (res, res) => {
+exports.login = async (req, res) => {
     try {
         const {email, password} = req.body;
 
